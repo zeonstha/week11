@@ -2,5 +2,5 @@
 ---
 # Exclude rules that flag open ingress/egress for this lab project
 exclude:
-  - aws-vpc-no-public-ingress-sgr
-  - aws-vpc-no-public-egress-sgr
+  - aws-ec2-no-public-ingress-sgr
+  - aaws-ec2-no-public-egress-sgr
