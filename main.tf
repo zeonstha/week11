@@ -87,16 +87,6 @@ resource "aws_security_group" "web-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  egress {
-    # FIX: Add a description to the egress rule.
-    description      = "Allow all outbound traffic for package updates"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
-}
-
 output "web-address" {
   value = "${aws_instance.web.public_dns}:8080"
 }
