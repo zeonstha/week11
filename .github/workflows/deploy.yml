@@ -1,0 +1,39 @@
+# deploy.yml - A workflow for continuous deployment
+
+name: Deploy Terraform
+
+on:
+  # Trigger this workflow on pushes to staging or prod
+  push:
+    branches:
+      - 'staging'
+      - 'prod'
+
+jobs:
+  deploy:
+    name: Deploy to Environment
+    runs-on: ubuntu-latest
+    
+    # This part is key: it sets the environment based on the branch name
+    environment:
+      name: ${{ github.ref_name }} # Dynamically uses 'staging' or 'prod'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        # configure cloud provider credentials here using secrets
+        # from the GitHub Environmentset up.
+
+      - name: Show Deployment Plan
+        id: plan
+        run: echo "This is where 'terraform plan' would run for the ${{ github.ref_name }} environment."
+        # In a real workflow, this would be: terraform plan -no-color
+
+      - name: Apply Deployment
+        # This step would only run on the staging/prod branches
+        if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
+        run: echo "This is where 'terraform apply' would run for the ${{ github.ref_name }} environment."
+        # In a real workflow, this would be: terraform apply -auto-approve
