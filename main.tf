@@ -14,6 +14,8 @@ terraform {
   }
   required_version = ">= 1.1.0"
 
+  # This cloud block is for Terraform Cloud and isn't needed for this lab.
+  # It can be safely removed.
   cloud {
     organization = "REPLACE_ME"
 
@@ -50,6 +52,16 @@ resource "aws_instance" "web" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.web-sg.id]
 
+  # FIX: Enforce IMDSv2 to resolve the metadata service security alert.
+  metadata_options {
+    http_tokens = "required"
+  }
+
+  # FIX: Explicitly encrypt the root volume to resolve the unencrypted block device alert.
+  root_block_device {
+    encrypted = true
+  }
+
   user_data = <<-EOF
               #!/bin/bash
               apt-get update
@@ -63,13 +75,27 @@ resource "aws_instance" "web" {
 resource "aws_security_group" "web-sg" {
   name = "${random_pet.sg.id}-sg"
 
+  # FIX: Add a description to the security group resource itself.
+  description = "Security group for the web server to allow HTTP traffic"
+
   ingress {
-    description = "Allow HTTP traffic"
+    # FIX: Add a description to the ingress rule.
+    description = "Allow HTTP traffic on port 8080 from anywhere"
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  egress {
+    # FIX: Add a description to the egress rule.
+    description      = "Allow all outbound traffic for package updates"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
 
 output "web-address" {
   value = "${aws_instance.web.public_dns}:8080"
